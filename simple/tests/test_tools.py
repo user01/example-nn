@@ -3,6 +3,7 @@
 import unittest
 import math
 from simple.tools import linear_forward, sigmoid_forward
+from simple.tools import linear_forward_verbose
 
 
 class TestForwardPass(unittest.TestCase):
@@ -21,6 +22,29 @@ class TestForwardPass(unittest.TestCase):
         self.assertEqual(29, linear_forward([1, 2, 5], [1, 2, 3, 4]))
 
 
+class TestForwardVerbose(unittest.TestCase):
+    """Forward Pass Verbosity tests"""
+
+    def test_basic(self):
+        """Basic"""
+        inputs = [1, 2]
+        weights = [3, 4, 5]
+        name = "c"
+        input_names = ['a', 'b']
+
+        results_actual = linear_forward_verbose(
+            inputs, weights, name, input_names)
+        results_expected = ['net_c = 17 = ',
+                            '   w_c.BIAS * x_c.BIAS  ',
+                            '          3 * 1          ',
+                            '      w_c.a * x_c.a     ',
+                            '          4 * 1          ',
+                            '      w_c.b * x_c.b     ',
+                            '          5 * 2          ']
+        self.assertListEqual(results_expected, results_actual)
+
+
+
 class TestSigmoid(unittest.TestCase):
     """Sigmoid tests"""
 
@@ -31,7 +55,8 @@ class TestSigmoid(unittest.TestCase):
     def test_many(self):
         """Many Sigmoid"""
         for i in range(-100, 100):
-            self.assertAlmostEqual(1 / (1 + math.exp(i / 10)), sigmoid_forward(i / 10))
+            self.assertAlmostEqual(
+                1 / (1 + math.exp(i / 10)), sigmoid_forward(i / 10))
 
 
 if __name__ == '__main__':
