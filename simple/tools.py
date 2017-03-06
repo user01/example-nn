@@ -13,7 +13,7 @@ def linear_forward_details(inputs, weights):
     if len(inputs) + 1 != len(weights):
         raise Exception("Inputs and Weights size mismatch")
     inputs_with_bias = [1] + inputs
-    inputs_and_weights = zip(inputs_with_bias, weights)
+    inputs_and_weights = list(zip(inputs_with_bias, weights))
     inputs_by_weights = [p[0] * p[1] for p in inputs_and_weights]
     netj = sum(inputs_by_weights)
     return {
@@ -64,7 +64,7 @@ def linear_backward_details(inputs, unit_error, weights, learning_rate):
 
 def sigmoid_forward(value):
     """Sigmoid function"""
-    return 1 / (1 + math.exp(value))
+    return 1 / (1 + math.exp(-value))
 
 
 def sigmoid_backward(value):

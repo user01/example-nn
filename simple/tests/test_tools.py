@@ -44,19 +44,18 @@ class TestForwardVerbose(unittest.TestCase):
         self.assertListEqual(results_expected, results_actual)
 
 
-
 class TestSigmoid(unittest.TestCase):
     """Sigmoid tests"""
 
     def test_basic(self):
         """Basic Sigmoid"""
-        self.assertAlmostEqual(1 / (1 + math.exp(5)), sigmoid_forward(5))
+        self.assertAlmostEqual(1 / (1 + math.exp(-5)), sigmoid_forward(5))
 
     def test_many(self):
         """Many Sigmoid"""
         for i in range(-100, 100):
             self.assertAlmostEqual(
-                1 / (1 + math.exp(i / 10)), sigmoid_forward(i / 10))
+                1 / (1 + math.exp(-i / 10)), sigmoid_forward(i / 10))
 
 
 if __name__ == '__main__':
