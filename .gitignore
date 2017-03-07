@@ -92,3 +92,5 @@ ENV/
 
 # VS Code configurations
 settings.json
+.vscode/*
+cSpell.json
