@@ -47,13 +47,16 @@ def try_and():
         print(' {0:>6} | {1:>5} {2:<10}'.format(
             str(value), result, round(estimated_value, 3)))
 
-def report_network(data,truths,network):
+
+def report_network(data, truths, network):
+    """Print function for Network Performance"""
     print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
     for value, result in zip(data, truths):
         estimated_value, _ = network.forward(value)
         # print(value, result, estimated_value)
         print(' {0:>6} | {1:>5} {2:<10}'.format(
             str(value), result[0], round(estimated_value[0], 3)))
+
 
 def try_and_network():
     """Run an example with Networked AND logic"""
@@ -72,6 +75,7 @@ def try_and_network():
     report_network(VALUE_INPUTS, values_outputs, new_network)
     return new_network
 
+
 def try_xor():
     """Run an example with XOR logic"""
     network = PerceptronNetwork(
@@ -88,7 +92,6 @@ def try_xor():
     new_network, mse, mse_first, _ = network.train(
         VALUE_INPUTS, values_outputs, 0.25, 8000, 1000)
     print('From MSE of {} to {}'.format(mse_first, mse))
-
 
     print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
     for value, result in zip(VALUE_INPUTS, values_outputs):
