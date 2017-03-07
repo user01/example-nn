@@ -53,7 +53,6 @@ class TestPerceptron(unittest.TestCase):
         for actual, expected in zip(results_actual, results_expected):
             self.assertAlmostEqual(actual, expected)
 
-
     def test_update_weights_c(self):
         """Test if Perceptron C with updated weights are correct"""
         learning_rate = 0.3
@@ -66,6 +65,53 @@ class TestPerceptron(unittest.TestCase):
         results_expected = [0.10084, 0.10084, 0.1]
         for actual, expected in zip(results_actual, results_expected):
             self.assertAlmostEqual(actual, expected)
+
+
+class TestPerceptronAnd(unittest.TestCase):
+    """Perceptron tests"""
+
+    def test_simple_and(self):
+        """Run an example with an AND logic"""
+
+        value_inputs = [
+            # A  B
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]
+        ]
+        value_outputs = [0, 0, 0, 1]
+        perceptron = Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
+        mse_current = float("inf")
+        learning_rate = 0.25
+
+        for epoch in range(0, 5000):
+            # print('Starting Epoch {}'.format(epoch))
+            standard_error = []
+            for value, result in zip(value_inputs, value_outputs):
+                # print('For {0}, truth {1} ...'.format(value, result))
+
+                # Step 1: forward pass - predict
+                estimated_value = perceptron.forward(value)
+
+                # Step 2: back pass - collect errors
+                weighted_error = result - estimated_value
+                standard_error.append(weighted_error ** 2)
+                unit_error = perceptron.backward(
+                    estimated_value, weighted_error)
+
+                # Step 3: update weights
+                perceptron = perceptron.update_weights(
+                    value, unit_error, learning_rate)
+
+            if epoch % 100 == 0:
+                mse_new = sum(standard_error) / len(standard_error)
+                # the MSE should always fall over many epochs
+                self.assertLess(mse_new, mse_current)
+
+        for value, result in zip(VALUE_INPUTS, value_outputs):
+            estimated_value = perceptron.forward(value)
+            self.assertLess(abs(result - estimated_value), 0.05)
 
 
 if __name__ == '__main__':
