@@ -34,7 +34,6 @@ class PerceptronLayer():
         """Produce a Perception Layer based on sizes"""
         input_size_with_bias = input_size + 1
         weights = [1 / math.sqrt(input_size_with_bias)] * input_size_with_bias
-        print('Starting weights', weights)
 
         perceptrons = [Perceptron(weights[:], '{0}.{1}'.format(name, i), input_names)
                        for i in range(0, output_size)]
