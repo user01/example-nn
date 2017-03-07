@@ -1,6 +1,5 @@
 
 
-
 class PerceptronNetwork():
     """Immutable perceptron network (stack of layers)"""
 
@@ -104,8 +103,8 @@ class PerceptronNetwork():
                                    estimated_result in zip(results, estimated_results)]
                 weighted_error = sum(weighted_errors) / len(weighted_errors)
                 standard_error.append(weighted_error ** 2)
-                unit_errors = network_current.backward(
-                    layer_states, weighted_errors)
+
+                unit_errors = network_current.backward(layer_states, results)
 
                 # Step 3: update weights
                 network_current = network_current.update_weights(
