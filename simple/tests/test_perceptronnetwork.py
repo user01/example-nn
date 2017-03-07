@@ -2,7 +2,9 @@
 
 import unittest
 
-from simple.perceptron import PerceptronLayer, PerceptronNetwork
+from simple.perceptron import Perceptron
+from simple.perceptronlayer import PerceptronLayer
+from simple.perceptronnetwork import PerceptronNetwork
 
 
 class TestPerceptronNetwork(unittest.TestCase):
@@ -115,6 +117,70 @@ class TestPerceptronNetwork(unittest.TestCase):
     #             # for weight_old, weight_new in zip(perceptron_old.weights(),
     #             #                                   perceptron_new.weights()):
     #             #     self.assertNotEqual(weight_old, weight_new)
+
+    def test_and(self):
+        """Test network matches known AND weights"""
+        epochs_to_run = 1
+        learning_rate = 0.15
+        value_inputs = [
+            # A  B
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]
+        ]
+        values_outputs = [1 if a + b == 2 else 0 for a, b in value_inputs]
+        perceptron_simple = Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
+
+        for _ in range(0, epochs_to_run):
+            # print('Starting Epoch {}'.format(epoch))
+            standard_error = []
+            for value, result in zip(value_inputs, values_outputs):
+                # print('For {0}, truth {1} ...'.format(value, result))
+
+                # Step 1: forward pass - predict
+                estimated_value = perceptron_simple.forward(value)
+
+                # Step 2: back pass - collect errors
+                weighted_error = result - estimated_value
+                standard_error.append(weighted_error ** 2)
+                unit_error = perceptron_simple.backward(
+                    estimated_value, weighted_error)
+
+                # Step 3: update weights
+                perceptron_simple = perceptron_simple.update_weights(
+                    value, unit_error, learning_rate)
+
+        network = PerceptronNetwork(
+            [
+                PerceptronLayer(
+                    [
+                        Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
+                    ], 'only_layer')
+            ])
+        values_network_outputs = [[a] for a in values_outputs]
+        new_network, _, _, _ = network.train(
+            value_inputs, values_network_outputs, learning_rate, epochs_to_run, 1000)
+
+        self.assertEqual(1, len(new_network.layers()))
+
+        layer = new_network.layers()[0]
+        self.assertEqual(2, layer.input_size())
+        self.assertEqual(1, layer.output_size())
+        self.assertEqual(1, len(layer.perceptrons()))
+
+        perceptron_layer = layer.perceptrons()[0]
+
+        self.assertEqual(perceptron_simple.input_size(),
+                         perceptron_layer.input_size())
+        self.assertEqual(len(perceptron_simple.weights()),
+                         len(perceptron_layer.weights()))
+        for weight_simple, weight_layer, idx in zip(perceptron_simple.weights(),
+                                                    perceptron_layer.weights(),
+                                                    range(0, len(perceptron_layer.weights()))):
+            self.assertAlmostEqual(
+                weight_simple, weight_layer, 7, 'Weight mismatch index {}'.format(idx))
+
 
 if __name__ == '__main__':
     unittest.main()

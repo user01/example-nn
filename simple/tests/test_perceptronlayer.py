@@ -2,7 +2,8 @@
 
 import unittest
 
-from simple.perceptron import Perceptron, PerceptronLayer
+from simple.perceptron import Perceptron
+from simple.perceptronlayer import PerceptronLayer
 
 
 class TestPerceptronLayer(unittest.TestCase):

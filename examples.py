@@ -103,6 +103,6 @@ def try_xor():
     return new_network
 
 if __name__ == "__main__":
-    try_and()
+    # try_and()
     try_and_network()
-    try_xor()
+    # try_xor()
