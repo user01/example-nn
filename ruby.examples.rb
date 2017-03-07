@@ -1,0 +1,26 @@
+# From http://stackoverflow.com/questions/4190455/training-neural-network-for-xor-in-ruby
+
+require "rubygems"
+require "ai4r"
+
+# Create the network with:
+ #   2 inputs
+ #   1 hidden layer with 3 neurons
+ #   1 outputs
+ net = Ai4r::NeuralNetwork::Backpropagation.new([2, 3, 1])
+
+ example = [[0,0],[0,1],[1,0],[1,1]]
+ result = [[0],[1],[1],[0]]
+
+ # Train the network
+ 24000.times do |i|
+   j = i % result.length
+   puts net.train(example[j], result[j])
+ end
+
+ # Use it: Evaluate data with the trained network
+puts "learning rate: #{net.learning_rate}"
+puts "evaluate 0,0: #{net.eval([0,0])}"  # =>  evaluate 0,0: 0.507531383375123
+puts "evaluate 0,1: #{net.eval([0,1])}"  # =>  evaluate 0,1: 0.491957823618629
+puts "evaluate 1,0: #{net.eval([1,0])}"  # =>  evaluate 1,0: 0.516413912471401
+puts "evaluate 1,1: #{net.eval([1,1])}"  # =>  evaluate 1,1: 0.500197884691668
