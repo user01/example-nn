@@ -39,6 +39,34 @@ class TestPerceptron(unittest.TestCase):
         perceptron_c_error = self.perceptron_c.backward(0.54, weighted_error_c)
         self.assertAlmostEqual(perceptron_c_error, 0.0028, 4)
 
+    def test_update_weights_d(self):
+        """Test if Perceptron D with updated weights are correct"""
+        learning_rate = 0.3
+        perceptron_d_input = 0.55  # checked via perceptron_c_output above
+        perceptron_d_error = 0.11  # checked via perceptron_d_error above
+        perceptron_d_new = self.perceptron_d.update_weights(
+            [perceptron_d_input], perceptron_d_error, learning_rate)
+
+        results_actual = perceptron_d_new.weights()
+        #                   w_bias w_dc
+        results_expected = [0.133, 0.11815]
+        for actual, expected in zip(results_actual, results_expected):
+            self.assertAlmostEqual(actual, expected)
+
+
+    def test_update_weights_c(self):
+        """Test if Perceptron C with updated weights are correct"""
+        learning_rate = 0.3
+        perceptron_c_input = VALUE_INPUTS[0]
+        perceptron_c_error = 0.0028  # checked via perceptron_c_error above
+        perceptron_c_new = self.perceptron_c.update_weights(
+            perceptron_c_input, perceptron_c_error, learning_rate)
+
+        results_actual = perceptron_c_new.weights()
+        results_expected = [0.10084, 0.10084, 0.1]
+        for actual, expected in zip(results_actual, results_expected):
+            self.assertAlmostEqual(actual, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
