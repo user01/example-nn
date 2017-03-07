@@ -86,10 +86,8 @@ class TestPerceptronAnd(unittest.TestCase):
         learning_rate = 0.25
 
         for epoch in range(0, 5000):
-            # print('Starting Epoch {}'.format(epoch))
             standard_error = []
             for value, result in zip(value_inputs, value_outputs):
-                # print('For {0}, truth {1} ...'.format(value, result))
 
                 # Step 1: forward pass - predict
                 estimated_value = perceptron.forward(value)
