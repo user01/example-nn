@@ -110,6 +110,8 @@ class TestPerceptronNetwork(unittest.TestCase):
 
         perceptron_estimated_values = []
         network_estimated_values = []
+        perceptron_unit_error = []
+        network_unit_error = []
         for value, result in zip(value_inputs, values_simple_outputs):
             # Step 1: forward pass - predict
             estimated_value = perceptron.forward(value)
@@ -119,6 +121,7 @@ class TestPerceptronNetwork(unittest.TestCase):
             weighted_error = result - estimated_value
             unit_error = perceptron.backward(
                 estimated_value, weighted_error)
+            perceptron_unit_error.append(unit_error)
 
             # Step 3: update weights
             perceptron_updated = perceptron.update_weights(
@@ -126,15 +129,12 @@ class TestPerceptronNetwork(unittest.TestCase):
 
         for values, results in zip(value_inputs, values_network_outputs):
             # Step 1: forward pass - predict
-            estimated_results, layer_states = network.forward(
-                values)
+            estimated_results, layer_states = network.forward(values)
             network_estimated_values.append(estimated_results[0])
 
             # Step 2: back pass - collect errors
-            # weighted_errors = [result - estimated_result for result,
-            # estimated_result in zip(results, estimated_results)]
-            unit_errors = network.backward(
-                layer_states, results)
+            unit_errors = network.backward(layer_states, results)
+            network_unit_error.append(unit_errors[0][0])
 
             # Step 3: update weights
             network_updated = network.update_weights(
@@ -145,16 +145,9 @@ class TestPerceptronNetwork(unittest.TestCase):
         for result_perceptron, results_network in zip(perceptron_estimated_values,
                                                       network_estimated_values):
             self.assertAlmostEqual(result_perceptron, results_network)
-
-        # network = PerceptronNetwork(
-        #     [
-        #         PerceptronLayer(
-        #             [
-        #                 Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
-        #             ], 'only_layer')
-        #     ])
-        # new_network, _, _, _ = network.train(
-        #     value_inputs, values_network_outputs, learning_rate, 1, 1000)
+        for unit_error_perceptron, unit_errors_network in zip(perceptron_unit_error,
+                                                              network_unit_error):
+            self.assertAlmostEqual(unit_error_perceptron, unit_errors_network)
 
         self.assertEqual(1, len(network_updated.layers()))
 
