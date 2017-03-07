@@ -20,9 +20,13 @@ class Perceptron():
         """Returns a copy of the current weights"""
         return self._weights[:]
 
-    def input_counts(self):
-        """Returns a copy of the current weights"""
+    def input_size(self):
+        """Returns the size of the input"""
         return len(self._weights) - 1
+
+    def name(self):
+        """Returns the perceptron name."""
+        return self._name
 
     def forward(self, inputs):
         """Run an input through the Perceptron. Returns the output value"""
@@ -58,7 +62,7 @@ class PerceptronLayer():
     """Container for multiple Perceptrons in a layer"""
 
     def __init__(self, perceptrons, name):
-        self._input_size = perceptrons[0].input_counts()
+        self._input_size = perceptrons[0].input_size()
         self._output_size = len(perceptrons)
         self._name = name
         self._perceptrons = perceptrons
@@ -74,6 +78,10 @@ class PerceptronLayer():
     def output_size(self):
         """Size out output array"""
         return self._output_size
+
+    def name(self):
+        """Name of Layer"""
+        return self._name
 
     @staticmethod
     def blank(input_size, output_size, name, input_names):
@@ -112,8 +120,22 @@ class PerceptronNetwork():
         self._layers = layers
         for idx in range(0, len(layers) - 1):
             if layers[idx].output_size() != layers[idx + 1].input_size():
-                raise Exception("Layer size mismatch at layer {0}".format(idx))
+                raise Exception(
+                    """Layer {layer_out} output size of {out_size} mismatch at with
+                    layer {layer_in} with input size of {in_size}.""".format(
+                        out_size=layers[idx].output_size(),
+                        in_size=layers[idx + 1].input_size(),
+                        layer_in=layers[idx + 1].name(),
+                        layer_out=layers[idx].name()
+                    ))
 
+    def layers(self):
+        """Current copy of the layers"""
+        return self._layers[:]
+
+    def shape(self):
+        """List of tuples of self shape"""
+        return [(layer.input_size(), layer.output_size()) for layer in self._layers]
 
     def forward(self, inputs):
         """Run forward in the network. Returns (all_outputs, final_output)"""
@@ -146,7 +168,7 @@ class PerceptronNetwork():
 
         for idx in backwards_idx:
             # use current error terms to update the current layer
-            layer_inputs = layer_states[idx]
+            layer_inputs = layer_states[idx + 1]
             layer_back = self._layers[idx]
             # layer associated with error_terms
             layer_error = self._layers[idx + 1]
@@ -165,3 +187,56 @@ class PerceptronNetwork():
                 layer_inputs, weighted_errors)
 
         return unit_errors
+
+    def update_weights(self, layer_states, unit_errors, learning_rate):
+        """A new network with updated weights"""
+        inputs = layer_states[:-1]
+        layers_new = [layer.update_weights(state, unit_error, learning_rate) for
+                      layer, state, unit_error in zip(
+                          self._layers, inputs, unit_errors)]
+        return PerceptronNetwork(layers_new)
+
+    def train(self, values_input, values_outputs, learning_rate, epochs, epoch_reporting):
+        """Train network over data"""
+        network_current = self
+        mses = []
+
+        for epoch in range(0, epochs):
+            # print('Starting Epoch {}'.format(epoch))
+            standard_error = []
+            for values, results in zip(values_input, values_outputs):
+                # print('For {0}, truth {1} ...'.format(value, result))
+
+                # Step 1: forward pass - predict
+                estimated_results, layer_states = network_current.forward(
+                    values)
+
+                # Step 2: back pass - collect errors
+                weighted_errors = [result - estimated_result for result,
+                                   estimated_result in zip(results, estimated_results)]
+                weighted_error = sum(weighted_errors) / len(weighted_errors)
+                standard_error.append(weighted_error ** 2)
+                unit_errors = network_current.backward(
+                    layer_states, weighted_errors)
+
+                # Step 3: update weights
+                network_current = network_current.update_weights(
+                    layer_states, unit_errors, learning_rate)
+
+            if len(mses) < 1:
+                mse = sum(standard_error) / len(standard_error)
+                mse_first = mse
+
+            if epoch % epoch_reporting == 0:
+                mse = sum(standard_error) / len(standard_error)
+                mses.append((epoch, mse))
+                # print('For epoch {0}, MSE of {1}'.format(epoch, mse))
+
+        return network_current, mse, mse_first, mses
+        # print('Final MSE {0}'.format(sum(standard_error) / len(standard_error)))
+        # print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
+        # for value, result in zip(values_input, values_outputs):
+        #     estimated_value = perceptron.forward(value)
+        #     # print(value, result, estimated_value)
+        #     print(' {0:>6} | {1:>5} {2:<10}'.format(
+        #         str(value), result, round(estimated_value, 3)))

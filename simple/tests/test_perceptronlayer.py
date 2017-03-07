@@ -18,13 +18,13 @@ class TestPerceptronLayer(unittest.TestCase):
             'layer1'
         )
         self.assertEqual(2, len(new_layer.perceptrons()))
-        self.assertEqual(1, new_layer.perceptrons()[0].input_counts())
+        self.assertEqual(1, new_layer.perceptrons()[0].input_size())
 
     def test_init_blank(self):
         """Test the constructing a blank layer"""
         new_layer = PerceptronLayer.blank(4, 2, 'layer1', ['a', 'b', 'c', 'd'])
         self.assertEqual(2, len(new_layer.perceptrons()))
-        self.assertEqual(4, new_layer.perceptrons()[0].input_counts())
+        self.assertEqual(4, new_layer.perceptrons()[0].input_size())
 
     def test_forward(self):
         """Test feeding forward through a layer"""
