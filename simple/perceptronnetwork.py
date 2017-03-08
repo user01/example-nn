@@ -157,6 +157,19 @@ class PerceptronNetwork():
                           self._layers, inputs, unit_errors)]
         return PerceptronNetwork(layers_new)
 
+    def update_weights_verbose(self, layer_states, unit_errors, learning_rate):
+        """A new network with updated weights"""
+        inputs = layer_states[:-1]
+        layers_new = [layer.update_weights(state, unit_error, learning_rate) for
+                      layer, state, unit_error in zip(
+                          self._layers, inputs, unit_errors)]
+        layers_notes = [layer.update_weights_verbose(state, unit_error, learning_rate)[1] for
+                        layer, state, unit_error in zip(
+                            self._layers, inputs, unit_errors)]
+        notes = ['Network Update Weights'] + \
+            ['| {}'.format(line) for line in flatten(layers_notes)]
+        return PerceptronNetwork(layers_new), notes
+
     def step(self, inputs, outputs, learning_rate):
         """Verbose results from a learning forward/backward step"""
 
@@ -169,10 +182,10 @@ class PerceptronNetwork():
             layer_states, outputs)
 
         # Step 3: update weights
-        network_updated = self.update_weights(
+        network_updated, notes_weights = self.update_weights_verbose(
             layer_states, unit_errors, learning_rate)
 
-        return estimated_results, network_updated, notes_forward + notes_backward
+        return estimated_results, network_updated, notes_forward + notes_backward + notes_weights
 
     def train(self, values_input, values_outputs, learning_rate, epochs, epoch_reporting):
         """Train network over data"""

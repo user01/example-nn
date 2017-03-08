@@ -3,7 +3,7 @@
 
 from .tools import linear_forward, sigmoid_forward, relu_forward, tanh_forward
 from .tools import linear_backward, sigmoid_backward, relu_backward, tanh_backward
-from .tools import linear_forward_verbose
+from .tools import linear_forward_verbose, linear_backward_verbose
 
 
 class Perceptron():
@@ -90,3 +90,9 @@ class Perceptron():
         weights_updated = linear_backward(
             inputs, unit_error, self._weights, learning_rate)
         return Perceptron(weights_updated, self._name, self._input_names, self._activation_string)
+
+    def update_weights_verbose(self, inputs, unit_error, learning_rate):
+        """Returns updated Perceptron and notes"""
+        notes = linear_backward_verbose(
+            inputs, self._name, self._input_names, unit_error, self._weights, learning_rate)
+        return self.update_weights(inputs, unit_error, learning_rate), notes

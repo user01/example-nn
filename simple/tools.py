@@ -62,6 +62,54 @@ def linear_backward_details(inputs, unit_error, weights, learning_rate):
     }
 
 
+def linear_backward_verbose(inputs, name, input_names, unit_error, weights, learning_rate):
+    """List of strings detailing the backwards step"""
+    details = linear_backward_details(
+        inputs, unit_error, weights, learning_rate)
+    inputs_with_bias = [1] + inputs
+    input_names_with_bias = ['BIAS'] + input_names
+    weights_updated = details['weights_updated']
+    weights = details['weights']
+    weights_delta = details['weights_delta']
+
+    lines = [
+        ['w_{name}.{source}'.format(name=name, source=source), '<-',
+         'w_{name}.{source}'.format(name=name, source=source), '+',
+         'Δw_{name}.{source}'.format(name=name, source=source), '=',
+         'w_{name}.{source}'.format(name=name, source=source), '+',
+         'η', '*',
+         '𝛿_{name}'.format(name=name), '*',
+         'x_{name}.{source}'.format(name=name, source=source)]
+        for source in input_names_with_bias]
+
+    fix_num = lambda value: str(round(value, 3))
+
+    numbers = [
+        [fix_num(weight_updated), '<-',
+         fix_num(weight), '+',
+         fix_num(weight_delta), '=',
+         fix_num(weight), '+',
+         fix_num(learning_rate), '*',
+         fix_num(unit_error), '*',
+         fix_num(input_value)]
+        for weight_updated, weight, weight_delta, input_value in
+        zip(weights_updated, weights, weights_delta, inputs_with_bias)]
+
+    # lines = [
+    #     'w_{name}.{source} <- w_{name}.{source} + Δw_{name}.{source} = w_{name}.{source} + η*𝛿_{name}*x_{name}.{source}'
+    #     .format(name=name, source=source)
+    #     for source in input_names_with_bias]
+
+    # numbers = ['{weight_updated} <- {weight} + {weight_delta} = {weight} + {learning_rate}*{unit_error}*{input_value}'.format(
+    #     weight_updated=round(weight_updated, 3), weight=round(weight, 3), weight_delta=round(weight_delta, 3),
+    #     learning_rate=learning_rate, unit_error=round(
+    #         unit_error, 3), input_value=round(input_value, 3))
+    # for weight_updated, weight, weight_delta, input_value in
+    # zip(weights_updated, weights, weights_delta, inputs_with_bias)]
+
+    return align_equations(interleave(lines, numbers))
+
+
 def sigmoid_forward(value):
     """Sigmoid function"""
     return 1 / (1 + math.exp(-value))
@@ -86,6 +134,7 @@ def tanh_forward(value):
     """tanh function"""
     return (math.exp(value) - math.exp(-value)) / (math.exp(value) + math.exp(-value))
 
+
 def tanh_backward(value):
     """Backwards tanh function (gradient)"""
     return 1 - math.tanh(value) ** 2
@@ -100,3 +149,17 @@ def interleave(list_a, list_b):
 def flatten(lst):
     """Flatten a List<List<any>> into List<any>"""
     return [item for sublist in lst for item in sublist]
+
+
+def align_equations(equations):
+    """Convert n x m lists into aligned strings"""
+    nth_size = [None] * len(equations[0])
+    for idx in range(0, len(equations[0])):
+        nth_size[idx] = max([len(equation[idx]) for equation in equations])
+
+    new_equations = [None] * len(equations)
+    for idx in range(0, len(equations)):
+        new_equations[idx] = ' '.join([('{0:>' + str(size) + '}').format(term)
+                                       for term, size in zip(equations[idx], nth_size)])
+
+    return new_equations

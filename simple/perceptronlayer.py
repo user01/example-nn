@@ -58,7 +58,7 @@ class PerceptronLayer():
         results = [p.forward(inputs) for p in self._perceptrons]
 
         notes = [p.forward_verbose(inputs) for p in self._perceptrons]
-        verbose = ['Forward pass for Layer {}'.format(self._name)] + \
+        verbose = ['Forward pass for Layer "{}"'.format(self._name)] + \
                   ['> {}'.format(line) for line in flatten(notes)]
         return results, verbose
 
@@ -76,7 +76,7 @@ class PerceptronLayer():
         notes = [perceptron.backward_verbose(output_value, weighted_error)[1] for
                  perceptron, output_value, weighted_error in
                  zip(self._perceptrons, outputs, weighted_errors)]
-        notes = ['Backward Pass for Layer {}'.format(self._name)] + \
+        notes = ['Backward Pass for Layer "{}"'.format(self._name)] + \
             ['> {}'.format(line) for line in flatten(notes)]
 
         return results, notes
@@ -86,3 +86,15 @@ class PerceptronLayer():
         perceptrons_new = [perceptron.update_weights(inputs, unit_error, learning_rate) for
                            perceptron, unit_error in zip(self._perceptrons, unit_errors)]
         return PerceptronLayer(perceptrons_new, self._name)
+
+    def update_weights_verbose(self, inputs, unit_errors, learning_rate):
+        """Updated weights on perceptrons layer"""
+        notes = ['Updated weights for Layer "{}"'.format(self._name)]
+        perceptrons_new = [perceptron.update_weights(inputs, unit_error, learning_rate) for
+                           perceptron, unit_error in zip(self._perceptrons, unit_errors)]
+        perceptrons_notes = [perceptron.update_weights_verbose(inputs, unit_error,
+                                                               learning_rate)[1] for
+                             perceptron, unit_error in zip(self._perceptrons, unit_errors)]
+
+        return PerceptronLayer(perceptrons_new, self._name), notes + \
+            ['> {}'.format(line) for line in flatten(perceptrons_notes)]
