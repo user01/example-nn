@@ -26,20 +26,21 @@ def linear_forward_details(inputs, weights):
 
 def linear_forward_verbose(inputs, weights, name, input_names):
     """List of strings detailing the final and intermediate results of the step"""
+    fix_num = lambda value: str(round(value, 3))
     results = linear_forward_details(inputs, weights)
     inputs_with_bias = [1] + inputs
     input_names_with_bias = ['BIAS'] + input_names
-    header = 'net_{0} = {1} = '.format(name, round(results['netj'], 3))
-    input_names_max = max([len(i) for i in input_names_with_bias]) + 6
-    input_line = ' {0:>' + str(input_names_max) + \
-        '} * {1:<' + str(input_names_max) + '}'
-    lines = [input_line.format('w_' + name + '.' + source, 'x_' + name + '.' + source)
-             for source in input_names_with_bias]
-    number_line = ' {0:' + str(input_names_max) + \
-        '} * {1:<' + str(input_names_max) + '} '
-    numbers = [number_line.format(round(w, 3), round(i, 3))
-               for (w, i) in zip(weights, inputs_with_bias)]
-    return [header] + interleave(lines, numbers)
+    header = ['net_{}'.format(name), '=']
+    tailer = [fix_num(results['netj']), '=']
+
+    lines = header + flatten([['w_{name}.{source}'.format(name=name, source=source), '*',
+                               'x_{name}.{source}'.format(name=name, source=source), '+']
+                              for source in input_names_with_bias])[:-1]
+
+    numbers = tailer + flatten([[fix_num(weight), '*', fix_num(input_value), '+']
+                                for weight, input_value in zip(weights, inputs_with_bias)])[:-1]
+
+    return align_equations([lines, numbers])
 
 
 def linear_backward(inputs, error, weights, learning_rate):
@@ -94,18 +95,6 @@ def linear_backward_verbose(inputs, name, input_names, unit_error, weights, lear
          fix_num(input_value)]
         for weight_updated, weight, weight_delta, input_value in
         zip(weights_updated, weights, weights_delta, inputs_with_bias)]
-
-    # lines = [
-    #     'w_{name}.{source} <- w_{name}.{source} + Δw_{name}.{source} = w_{name}.{source} + η*𝛿_{name}*x_{name}.{source}'
-    #     .format(name=name, source=source)
-    #     for source in input_names_with_bias]
-
-    # numbers = ['{weight_updated} <- {weight} + {weight_delta} = {weight} + {learning_rate}*{unit_error}*{input_value}'.format(
-    #     weight_updated=round(weight_updated, 3), weight=round(weight, 3), weight_delta=round(weight_delta, 3),
-    #     learning_rate=learning_rate, unit_error=round(
-    #         unit_error, 3), input_value=round(input_value, 3))
-    # for weight_updated, weight, weight_delta, input_value in
-    # zip(weights_updated, weights, weights_delta, inputs_with_bias)]
 
     return align_equations(interleave(lines, numbers))
 
