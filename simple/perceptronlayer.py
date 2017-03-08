@@ -30,12 +30,15 @@ class PerceptronLayer():
         return self._name
 
     @staticmethod
-    def blank(input_size, output_size, name, input_names):
+    def blank(input_size, output_size, name, input_names=None, activation=None):
         """Produce a Perception Layer based on sizes"""
         input_size_with_bias = input_size + 1
+        input_names = input_names if input_names is list else [
+            'i{}'.format(i) for i in range(0, input_size_with_bias)]
+        activation = activation if isinstance(activation, str) else 'sigmoid'
         weights = [1 / math.sqrt(input_size_with_bias)] * input_size_with_bias
 
-        perceptrons = [Perceptron(weights[:], '{0}.{1}'.format(name, i), input_names)
+        perceptrons = [Perceptron(weights[:], '{0}.{1}'.format(name, i), input_names, activation)
                        for i in range(0, output_size)]
         return PerceptronLayer(perceptrons, name)
 

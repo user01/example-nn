@@ -20,10 +20,11 @@ class PerceptronNetwork():
                     ))
 
     @staticmethod
-    def shorthand(sizes):
+    def shorthand(sizes, activation=None):
         """Simple array based init of network"""
         if len(sizes) < 2:
             raise Exception("Invalid size set")
+        activation = activation if isinstance(activation, str) else 'sigmoid'
         layers = []
         while len(sizes) > 1:
             input_size = sizes[0]
@@ -31,7 +32,8 @@ class PerceptronNetwork():
             layers.append(PerceptronLayer.blank(input_size,
                                                 sizes[0],
                                                 str(len(sizes)),
-                                                ['?'] * input_size))
+                                                ['?'] * input_size,
+                                                activation))
         return PerceptronNetwork(layers)
 
     def layers(self):

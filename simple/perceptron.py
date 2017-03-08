@@ -18,7 +18,7 @@ class Perceptron():
     @staticmethod
     def _activation_string(value):
         """Convert string to known activation function string"""
-        value = 'sigmoid' if value is not str else value
+        value = 'sigmoid' if not isinstance(value, str) else value
         value = value.lower()
         if value == 'relu' or value == 'tanh':
             return value
@@ -79,4 +79,4 @@ class Perceptron():
         """Returns updated Perceptron"""
         weights_updated = linear_backward(
             inputs, unit_error, self._weights, learning_rate)
-        return Perceptron(weights_updated, self._name, self._input_names)
+        return Perceptron(weights_updated, self._name, self._input_names, self._activation_string)
