@@ -95,3 +95,8 @@ def tanh_backward(value):
 def interleave(list_a, list_b):
     """Interleaves two lists of the same length"""
     return [x for t in zip(list_a, list_b) for x in t]
+
+# http://stackoverflow.com/a/952952/2601448
+def flatten(lst):
+    """Flatten a List<List<any>> into List<any>"""
+    return [item for sublist in lst for item in sublist]
