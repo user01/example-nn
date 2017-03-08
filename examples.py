@@ -1,6 +1,8 @@
 """Hard coded NN tests"""
 
-from simple.perceptron import Perceptron, PerceptronLayer, PerceptronNetwork
+from simple.perceptron import Perceptron
+from simple.perceptronlayer import PerceptronLayer
+from simple.perceptronnetwork import PerceptronNetwork
 
 VALUE_INPUTS = [
     # A  B
@@ -10,6 +12,7 @@ VALUE_INPUTS = [
     [1, 1]
 ]
 LEARNING_RATE = 0.25
+EPOCHS_AND = 5000
 
 
 def try_and():
@@ -17,7 +20,7 @@ def try_and():
     values_outputs = [1 if a + b == 2 else 0 for a, b in VALUE_INPUTS]
     perceptron = Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
 
-    for epoch in range(0, 5000):
+    for epoch in range(0, EPOCHS_AND):
         # print('Starting Epoch {}'.format(epoch))
         standard_error = []
         for value, result in zip(VALUE_INPUTS, values_outputs):
@@ -35,7 +38,7 @@ def try_and():
             perceptron = perceptron.update_weights(
                 value, unit_error, LEARNING_RATE)
 
-        if epoch % 10000 == 0:
+        if epoch % 1000 == 0:
             print('For epoch {0}, MSE of {1}'.format(
                 epoch, sum(standard_error) / len(standard_error)))
 
@@ -60,16 +63,13 @@ def report_network(data, truths, network):
 
 def try_and_network():
     """Run an example with Networked AND logic"""
-    network = PerceptronNetwork(
-        [
-            PerceptronLayer.blank(
-                2, 1, 'output_layer', ['a', 'b'])
-        ]
-    )
+    network = PerceptronNetwork.shorthand([2, 1])
     values_outputs = [[1] if a + b == 2 else [0] for a, b in VALUE_INPUTS]
     print(values_outputs)
-    new_network, mse, mse_first, _ = network.train(
-        VALUE_INPUTS, values_outputs, 0.35, 10000, 1000)
+    new_network, mse, mse_first, mses = network.train(
+        VALUE_INPUTS, values_outputs, 0.35, EPOCHS_AND, 1000)
+    for epoch, mse in mses:
+        print('For epoch {0}, MSE of {1}'.format(epoch, mse))
     print('From MSE of {} to {}'.format(mse_first, mse))
 
     report_network(VALUE_INPUTS, values_outputs, new_network)
@@ -78,20 +78,15 @@ def try_and_network():
 
 def try_xor():
     """Run an example with XOR logic"""
-    network = PerceptronNetwork(
-        [
-            PerceptronLayer.blank(2, 3, 'input_layer', ['a', 'b']),
-            PerceptronLayer.blank(
-                3, 3, 'hidden_layer', ['input_a', 'input_b', 'input_c']),
-            PerceptronLayer.blank(
-                3, 1, 'output_layer', ['hidden_a', 'hidden_b', 'hidden_c'])
-        ]
-    )
+    network = PerceptronNetwork.shorthand([2, 4, 2, 1])
     values_outputs = [[1] if a + b == 1 else [0] for a, b in VALUE_INPUTS]
     print(values_outputs)
-    new_network, mse, mse_first, _ = network.train(
-        VALUE_INPUTS, values_outputs, 0.25, 8000, 1000)
+    new_network, mse, mse_first, mses = network.train(
+        VALUE_INPUTS, values_outputs, 0.05, 58000, 1000)
     print('From MSE of {} to {}'.format(mse_first, mse))
+
+    for epoch, mse in mses:
+        print('For epoch {0}, MSE of {1}'.format(epoch, mse))
 
     print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
     for value, result in zip(VALUE_INPUTS, values_outputs):
@@ -104,5 +99,5 @@ def try_xor():
 
 if __name__ == "__main__":
     # try_and()
-    try_and_network()
-    # try_xor()
+    # try_and_network()
+    try_xor()
