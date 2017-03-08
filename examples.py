@@ -1,7 +1,6 @@
 """Hard coded NN tests"""
 
 from simple.perceptron import Perceptron
-from simple.perceptronlayer import PerceptronLayer
 from simple.perceptronnetwork import PerceptronNetwork
 
 VALUE_INPUTS = [
@@ -46,7 +45,6 @@ def try_and():
     print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
     for value, result in zip(VALUE_INPUTS, values_outputs):
         estimated_value = perceptron.forward(value)
-        # print(value, result, estimated_value)
         print(' {0:>6} | {1:>5} {2:<10}'.format(
             str(value), result, round(estimated_value, 3)))
 
@@ -65,9 +63,9 @@ def try_and_network():
     """Run an example with Networked AND logic"""
     network = PerceptronNetwork.shorthand([2, 1])
     values_outputs = [[1] if a + b == 2 else [0] for a, b in VALUE_INPUTS]
-    print(values_outputs)
+
     new_network, mse, mse_first, mses = network.train(
-        VALUE_INPUTS, values_outputs, 0.35, EPOCHS_AND, 1000)
+        VALUE_INPUTS, values_outputs, LEARNING_RATE, EPOCHS_AND, 1000)
     for epoch, mse in mses:
         print('For epoch {0}, MSE of {1}'.format(epoch, mse))
     print('From MSE of {} to {}'.format(mse_first, mse))
@@ -76,13 +74,34 @@ def try_and_network():
     return new_network
 
 
+def try_nor():
+    """Run an example with XOR logic"""
+    network = PerceptronNetwork.shorthand([2, 1], 'relu')
+    values_outputs = [[1] if a + b == 0 else [0] for a, b in VALUE_INPUTS]
+
+    new_network, mse, mse_first, mses = network.train(
+        VALUE_INPUTS, values_outputs, LEARNING_RATE, 5000, 1000)
+    print('From MSE of {} to {}'.format(mse_first, mse))
+
+    for epoch, mse in mses:
+        print('For epoch {0}, MSE of {1}'.format(epoch, mse))
+
+    print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
+    for value, result in zip(VALUE_INPUTS, values_outputs):
+        estimated_value, _ = new_network.forward(value)
+        # print(value, result, estimated_value)
+        print(' {0:>6} | {1:>5} {2:<10}'.format(
+            str(value), result[0], round(estimated_value[0], 3)))
+
+    return new_network
+
 def try_xor():
     """Run an example with XOR logic"""
-    network = PerceptronNetwork.shorthand([2, 4, 2, 1])
+    network = PerceptronNetwork.shorthand([2, 3, 1], 'relu')
     values_outputs = [[1] if a + b == 1 else [0] for a, b in VALUE_INPUTS]
-    print(values_outputs)
+
     new_network, mse, mse_first, mses = network.train(
-        VALUE_INPUTS, values_outputs, 0.05, 58000, 1000)
+        VALUE_INPUTS, values_outputs, LEARNING_RATE, 10000, 2000)
     print('From MSE of {} to {}'.format(mse_first, mse))
 
     for epoch, mse in mses:
@@ -100,4 +119,5 @@ def try_xor():
 if __name__ == "__main__":
     # try_and()
     # try_and_network()
+    try_nor()
     try_xor()
