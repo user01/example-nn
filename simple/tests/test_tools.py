@@ -34,13 +34,9 @@ class TestForwardVerbose(unittest.TestCase):
 
         results_actual = linear_forward_verbose(
             inputs, weights, name, input_names)
-        results_expected = ['net_c = 17 = ',
-                            '   w_c.BIAS * x_c.BIAS  ',
-                            '          3 * 1          ',
-                            '      w_c.a * x_c.a     ',
-                            '          4 * 1          ',
-                            '      w_c.b * x_c.b     ',
-                            '          5 * 2          ']
+        results_expected = [
+            'net_c = w_c.BIAS * x_c.BIAS + w_c.a * x_c.a + w_c.b * x_c.b',
+            '   17 =        3 *        1 +     4 *     1 +     5 *     2']
         self.assertListEqual(results_expected, results_actual)
 
 
