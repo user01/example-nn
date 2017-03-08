@@ -151,7 +151,7 @@ class TestPerceptronNetwork(unittest.TestCase):
 
     def assert_same_results(self, perceptron, network, perceptron_estimated_values,
                             network_estimated_values, perceptron_unit_error, network_unit_error):
-
+        """Vet results from perceptron/network operations"""
         self.assertEqual(len(perceptron_estimated_values),
                          len(network_estimated_values))
         for result_perceptron, results_network in zip(perceptron_estimated_values,
@@ -160,6 +160,11 @@ class TestPerceptronNetwork(unittest.TestCase):
         for unit_error_perceptron, unit_errors_network in zip(perceptron_unit_error,
                                                               network_unit_error):
             self.assertAlmostEqual(unit_error_perceptron, unit_errors_network)
+
+        self.assert_same_networks(perceptron, network)
+
+    def assert_same_networks(self, perceptron, network):
+        """Vet results from perceptron/network operations"""
 
         self.assertEqual(1, len(network.layers()))
 
@@ -214,6 +219,32 @@ class TestPerceptronNetwork(unittest.TestCase):
                                      network_estimated_values, perceptron_unit_error,
                                      network_unit_error)
 
+    def test_network_train_simple_and(self):
+        """Network training"""
+        epochs = 10
+        perceptron, _, _, _, _, _ = TestPerceptronNetwork.and_setup(epochs)
+        learning_rate = 0.15
+        value_inputs = [
+            # A  B
+            [0, 0],
+            [0, 1],
+            [1, 0],
+            [1, 1]
+        ]
+        values_simple_outputs = [1 if a + b ==
+                                 2 else 0 for a, b in value_inputs]
+        values_network_outputs = [[a] for a in values_simple_outputs]
+        network = PerceptronNetwork(
+            [
+                PerceptronLayer(
+                    [
+                        Perceptron([0.5, 0.5, 0.5], 'c', ['a', 'b'])
+                    ], 'only_layer')
+            ])
+        network_updated, _, _, _ = network.train(
+            value_inputs, values_network_outputs, learning_rate, epochs, 5)
+
+        self.assert_same_networks(perceptron, network_updated)
 
 if __name__ == '__main__':
     unittest.main()
