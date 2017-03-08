@@ -1,6 +1,7 @@
 """PerceptronNetwork Code"""
 
 from .perceptronlayer import PerceptronLayer
+from .tools import flatten
 
 
 class PerceptronNetwork():
@@ -60,6 +61,22 @@ class PerceptronNetwork():
 
         return (layer_states[-1], layer_states)
 
+    def forward_verbose(self, inputs):
+        """Run forward in the network. Returns (all_outputs, final_output, notes)"""
+        current_data = inputs[:]
+        layer_states = [inputs[:]] * (len(self._layers) + 1)
+        verbosity = []
+
+        for idx in range(0, len(self._layers)):
+            layer = self._layers[idx]
+            current_data, notes = layer.forward_verbose(current_data)
+            layer_states[idx + 1] = current_data[:]
+            verbosity = verbosity + notes
+
+        notes = ['Network Forward Pass'] + \
+            ['| {}'.format(line) for line in verbosity]
+        return (layer_states[-1], layer_states, notes)
+
     def backward(self, layer_states, truths):
         """Perform backprop in network - gathers unit errors for each layer"""
         # new_layers = [None] * len(self._layers)
@@ -102,6 +119,22 @@ class PerceptronNetwork():
                       layer, state, unit_error in zip(
                           self._layers, inputs, unit_errors)]
         return PerceptronNetwork(layers_new)
+
+    def step(self, inputs, outputs, learning_rate):
+        """Verbose results from a learning forward/backward step"""
+
+        # Step 1: forward pass - predict
+        estimated_results, layer_states, notes_forward = self.forward_verbose(
+            inputs)
+
+        # Step 2: back pass - collect errors
+        unit_errors = self.backward(layer_states, outputs)
+
+        # Step 3: update weights
+        network_updated = self.update_weights(
+            layer_states, unit_errors, learning_rate)
+
+        return estimated_results, network_updated, notes_forward
 
     def train(self, values_input, values_outputs, learning_rate, epochs, epoch_reporting):
         """Train network over data"""

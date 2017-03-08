@@ -2,6 +2,7 @@
 
 import math
 from .perceptron import Perceptron
+from .tools import flatten
 
 
 class PerceptronLayer():
@@ -48,6 +49,18 @@ class PerceptronLayer():
             raise Exception("Incorrect number of inputs")
 
         return [p.forward(inputs) for p in self._perceptrons]
+
+    def forward_verbose(self, inputs):
+        """Perform verbose feed forward on all Perceptrons"""
+        if len(inputs) != self._input_size:
+            raise Exception("Incorrect number of inputs")
+
+        results = [p.forward(inputs) for p in self._perceptrons]
+
+        notes = [p.forward_verbose(inputs) for p in self._perceptrons]
+        verbose = ['Forward pass for Layer {}'.format(self._name)] + \
+                  ['> {}'.format(line) for line in flatten(notes)]
+        return results, verbose
 
     def backward(self, outputs, weighted_errors):
         """Find error for each Perceptron based on their output and weighted errors"""
