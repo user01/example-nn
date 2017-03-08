@@ -1,6 +1,7 @@
 """Hard coded NN tests"""
 
 from simple.perceptron import Perceptron
+from simple.perceptronlayer import PerceptronLayer
 from simple.perceptronnetwork import PerceptronNetwork
 
 VALUE_INPUTS = [
@@ -75,7 +76,7 @@ def try_and_network():
 
 
 def try_nor():
-    """Run an example with XOR logic"""
+    """Run an example with NOR logic"""
     network = PerceptronNetwork.shorthand([2, 1], 'relu')
     values_outputs = [[1] if a + b == 0 else [0] for a, b in VALUE_INPUTS]
 
@@ -95,20 +96,33 @@ def try_nor():
 
     return new_network
 
-def try_xor():
-    """Run an example with XOR logic"""
-    network = PerceptronNetwork.shorthand([2, 3, 1], 'relu')
-    values_outputs = [[1] if a + b == 1 else [0] for a, b in VALUE_INPUTS]
+
+def try_multi():
+    """Run an example with Multi logic"""
+    network = PerceptronNetwork.shorthand([3, 4, 5, 4, 3, 1], 'relu')
+    inputs = [
+        [0, 0, 0],
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1]
+    ]
+    values_outputs = [[1] if a == 0 and (b == 1 or c == 0) else [
+        0] for a, b, c in inputs]
+    print(values_outputs)
 
     new_network, mse, mse_first, mses = network.train(
-        VALUE_INPUTS, values_outputs, LEARNING_RATE, 10000, 2000)
+        inputs, values_outputs, LEARNING_RATE, 5000, 1000)
     print('From MSE of {} to {}'.format(mse_first, mse))
 
     for epoch, mse in mses:
         print('For epoch {0}, MSE of {1}'.format(epoch, mse))
 
     print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
-    for value, result in zip(VALUE_INPUTS, values_outputs):
+    for value, result in zip(inputs, values_outputs):
         estimated_value, _ = new_network.forward(value)
         # print(value, result, estimated_value)
         print(' {0:>6} | {1:>5} {2:<10}'.format(
@@ -116,8 +130,58 @@ def try_xor():
 
     return new_network
 
+
+def print_notes(notes):
+    """Print the notes in a pleasing format"""
+    for note in notes:
+        print(note)
+
+
+def try_xor():
+    """Run an example with XOR logic"""
+    network = PerceptronNetwork.shorthand([2, 3, 1], 'relu')
+    print(network.shape())
+    network = PerceptronNetwork(
+        [
+            PerceptronLayer([
+                Perceptron([0.1] * 3, 'A', ['X', 'Y'], 'sigmoid'),
+                Perceptron([0.1] * 3, 'B', ['X', 'Y'], 'sigmoid'),
+                Perceptron([0.1] * 3, 'C', ['X', 'Y'], 'sigmoid')
+            ], 'main'),
+            PerceptronLayer([
+                Perceptron([0.1] * 4, 'D', ['A', 'B', 'C'], 'sigmoid')
+            ], 'final')
+        ]
+    )
+    print(network.shape())
+    values_outputs = [[1] if a + b == 1 else [0] for a, b in VALUE_INPUTS]
+
+    for epoch in range(0, 2):
+        print('Starting Epoch {}'.format(epoch))
+        standard_error = []
+        for value, results in zip(VALUE_INPUTS, values_outputs):
+            print(' ================================================== ')
+            print(value, '->', results)
+            print(' ================================================== ')
+
+            estimated_results, network, notes = network.step(
+                value, results, LEARNING_RATE)
+            print_notes(notes)
+
+            # Collect errors
+            weighted_errors = [result - estimated_result for result,
+                               estimated_result in zip(results, estimated_results)]
+            weighted_error = sum(weighted_errors) / len(weighted_errors)
+            standard_error.append(weighted_error ** 2)
+
+        if epoch % 1 == 0:
+            print('For epoch {0}, MSE of {1}'.format(
+                epoch, sum(standard_error) / len(standard_error)))
+
+
 if __name__ == "__main__":
     # try_and()
     # try_and_network()
-    try_nor()
+    # try_nor()
     try_xor()
+    # try_multi()
