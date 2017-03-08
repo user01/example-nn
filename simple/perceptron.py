@@ -65,8 +65,8 @@ class Perceptron():
         net_j = linear_forward(inputs, self._weights)
         output_j = self.activation_forward(net_j)
         sigmoid_prints = [
-            ' σ(net_{0}) = σ({1}) = {2}'.format(
-                self._name, round(net_j, 3), round(output_j, 3))
+            ' σ(net_{0}) = σ_{3}({1}) = {2}'.format(
+                self._name, round(net_j, 3), round(output_j, 3), self._activation)
         ]
         return linear_prints + sigmoid_prints
 
@@ -74,6 +74,16 @@ class Perceptron():
         """Returns updated weights"""
         unit_error = self.activation_backward(output_unit) * weighted_error
         return unit_error
+
+    def backward_verbose(self, output_unit, weighted_error):
+        """Returns updated weights and notes"""
+        unit_error = self.activation_backward(output_unit) * weighted_error
+        notes = [
+            " unit_error({0}) = σ'_{3}({1}) * {4} = {2}".format(
+                self._name, round(output_unit, 3), round(unit_error, 3),
+                self._activation, round(weighted_error, 3))
+        ]
+        return unit_error, notes
 
     def update_weights(self, inputs, unit_error, learning_rate):
         """Returns updated Perceptron"""

@@ -68,6 +68,19 @@ class PerceptronLayer():
                 perceptron, output_value, weighted_error in
                 zip(self._perceptrons, outputs, weighted_errors)]
 
+    def backward_verbose(self, outputs, weighted_errors):
+        """Find error for each Perceptron based on their output and weighted errors, notes"""
+        results = [perceptron.backward(output_value, weighted_error) for
+                   perceptron, output_value, weighted_error in
+                   zip(self._perceptrons, outputs, weighted_errors)]
+        notes = [perceptron.backward_verbose(output_value, weighted_error)[1] for
+                 perceptron, output_value, weighted_error in
+                 zip(self._perceptrons, outputs, weighted_errors)]
+        notes = ['Backward Pass for Layer {}'.format(self._name)] + \
+            ['> {}'.format(line) for line in flatten(notes)]
+
+        return results, notes
+
     def update_weights(self, inputs, unit_errors, learning_rate):
         """Updated weights on perceptrons layer"""
         perceptrons_new = [perceptron.update_weights(inputs, unit_error, learning_rate) for

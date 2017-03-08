@@ -37,7 +37,7 @@ def linear_forward_verbose(inputs, weights, name, input_names):
              for source in input_names_with_bias]
     number_line = ' {0:' + str(input_names_max) + \
         '} * {1:<' + str(input_names_max) + '} '
-    numbers = [number_line.format(round(w, input_names_max), round(i, input_names_max))
+    numbers = [number_line.format(round(w, 3), round(i, 3))
                for (w, i) in zip(weights, inputs_with_bias)]
     return [header] + interleave(lines, numbers)
 
