@@ -86,8 +86,9 @@ class TestPerceptronNetwork(unittest.TestCase):
         self.assertEqual(3, len(unit_errors_actual[1]))
         self.assertEqual(1, len(unit_errors_actual[2]))
 
-    def test_and_single_epoch(self):
-        """Test network matches known AND weights with one epoch"""
+    @staticmethod
+    def and_setup(epochs):
+        """Set up AND values"""
         learning_rate = 0.15
         value_inputs = [
             # A  B
@@ -112,33 +113,44 @@ class TestPerceptronNetwork(unittest.TestCase):
         network_estimated_values = []
         perceptron_unit_error = []
         network_unit_error = []
-        for value, result in zip(value_inputs, values_simple_outputs):
-            # Step 1: forward pass - predict
-            estimated_value = perceptron.forward(value)
-            perceptron_estimated_values.append(estimated_value)
+        for _ in range(0, epochs):
+            for value, result in zip(value_inputs, values_simple_outputs):
+                # Step 1: forward pass - predict
+                estimated_value = perceptron.forward(value)
+                perceptron_estimated_values.append(estimated_value)
 
-            # Step 2: back pass - collect errors
-            weighted_error = result - estimated_value
-            unit_error = perceptron.backward(
-                estimated_value, weighted_error)
-            perceptron_unit_error.append(unit_error)
+                # Step 2: back pass - collect errors
+                weighted_error = result - estimated_value
+                unit_error = perceptron.backward(
+                    estimated_value, weighted_error)
+                perceptron_unit_error.append(unit_error)
 
-            # Step 3: update weights
-            perceptron_updated = perceptron.update_weights(
-                value, unit_error, learning_rate)
+                # Step 3: update weights
+                perceptron = perceptron.update_weights(
+                    value, unit_error, learning_rate)
 
-        for values, results in zip(value_inputs, values_network_outputs):
-            # Step 1: forward pass - predict
-            estimated_results, layer_states = network.forward(values)
-            network_estimated_values.append(estimated_results[0])
+            for values, results in zip(value_inputs, values_network_outputs):
+                # Step 1: forward pass - predict
+                estimated_results, layer_states = network.forward(values)
+                network_estimated_values.append(estimated_results[0])
 
-            # Step 2: back pass - collect errors
-            unit_errors = network.backward(layer_states, results)
-            network_unit_error.append(unit_errors[0][0])
+                # Step 2: back pass - collect errors
+                unit_errors = network.backward(layer_states, results)
+                network_unit_error.append(unit_errors[0][0])
 
-            # Step 3: update weights
-            network_updated = network.update_weights(
-                layer_states, unit_errors, learning_rate)
+                # Step 3: update weights
+                network = network.update_weights(
+                    layer_states, unit_errors, learning_rate)
+
+        return (perceptron,
+                network,
+                perceptron_estimated_values,
+                network_estimated_values,
+                perceptron_unit_error,
+                network_unit_error)
+
+    def assert_same_results(self, perceptron, network, perceptron_estimated_values,
+                            network_estimated_values, perceptron_unit_error, network_unit_error):
 
         self.assertEqual(len(perceptron_estimated_values),
                          len(network_estimated_values))
@@ -149,24 +161,58 @@ class TestPerceptronNetwork(unittest.TestCase):
                                                               network_unit_error):
             self.assertAlmostEqual(unit_error_perceptron, unit_errors_network)
 
-        self.assertEqual(1, len(network_updated.layers()))
+        self.assertEqual(1, len(network.layers()))
 
-        layer = network_updated.layers()[0]
+        layer = network.layers()[0]
         self.assertEqual(2, layer.input_size())
         self.assertEqual(1, layer.output_size())
         self.assertEqual(1, len(layer.perceptrons()))
 
         perceptron_layer = layer.perceptrons()[0]
 
-        self.assertEqual(perceptron_updated.input_size(),
+        self.assertEqual(perceptron.input_size(),
                          perceptron_layer.input_size())
-        self.assertEqual(len(perceptron_updated.weights()),
+        self.assertEqual(len(perceptron.weights()),
                          len(perceptron_layer.weights()))
-        for weight_simple, weight_layer, idx in zip(perceptron_updated.weights(),
+        for weight_simple, weight_layer, idx in zip(perceptron.weights(),
                                                     perceptron_layer.weights(),
                                                     range(0, len(perceptron_layer.weights()))):
             self.assertAlmostEqual(
                 weight_simple, weight_layer, 7, 'Weight mismatch index {}'.format(idx))
+
+    def test_and_single_epoch(self):
+        """Test network matches known AND weights with one epoch"""
+
+        perceptron, network, perceptron_estimated_values, \
+            network_estimated_values, perceptron_unit_error, network_unit_error \
+            = TestPerceptronNetwork.and_setup(1)
+
+        self.assert_same_results(perceptron, network, perceptron_estimated_values,
+                                 network_estimated_values, perceptron_unit_error,
+                                 network_unit_error)
+
+    def test_and_ten_epoch(self):
+        """Test network matches known AND weights with ten epochs"""
+
+        perceptron, network, perceptron_estimated_values, \
+            network_estimated_values, perceptron_unit_error, network_unit_error \
+            = TestPerceptronNetwork.and_setup(10)
+
+        self.assert_same_results(perceptron, network, perceptron_estimated_values,
+                                 network_estimated_values, perceptron_unit_error,
+                                 network_unit_error)
+
+    def test_and_multi_epoch(self):
+        """Test network matches known AND weights with multiple epoch"""
+
+        for epochs in range(10, 100, 10):
+            perceptron, network, perceptron_estimated_values, \
+                network_estimated_values, perceptron_unit_error, network_unit_error \
+                = TestPerceptronNetwork.and_setup(epochs)
+
+            self.assert_same_results(perceptron, network, perceptron_estimated_values,
+                                     network_estimated_values, perceptron_unit_error,
+                                     network_unit_error)
 
 
 if __name__ == '__main__':
