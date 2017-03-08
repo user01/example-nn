@@ -1,3 +1,6 @@
+"""PerceptronNetwork Code"""
+
+from .perceptronlayer import PerceptronLayer
 
 
 class PerceptronNetwork():
@@ -15,6 +18,21 @@ class PerceptronNetwork():
                         layer_in=layers[idx + 1].name(),
                         layer_out=layers[idx].name()
                     ))
+
+    @staticmethod
+    def shorthand(sizes):
+        """Simple array based init of network"""
+        if len(sizes) < 2:
+            raise Exception("Invalid size set")
+        layers = []
+        while len(sizes) > 1:
+            input_size = sizes[0]
+            sizes = sizes[1:]
+            layers.append(PerceptronLayer.blank(input_size,
+                                                sizes[0],
+                                                str(len(sizes)),
+                                                ['?'] * input_size))
+        return PerceptronNetwork(layers)
 
     def layers(self):
         """Current copy of the layers"""
