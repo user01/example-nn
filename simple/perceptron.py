@@ -66,7 +66,7 @@ class Perceptron():
         output_j = self.activation_forward(net_j)
         sigmoid_prints = [
             ' σ(net_{0}) = σ({1}) = {2}'.format(
-                self._name, round(net_j, 3), round(output_j))
+                self._name, round(net_j, 3), round(output_j, 3))
         ]
         return linear_prints + sigmoid_prints
 
