@@ -72,6 +72,25 @@ def sigmoid_backward(value):
     return value * (1 - value)
 
 
+def relu_forward(value):
+    """Relu function"""
+    return max(0, value)
+
+
+def relu_backward(value):
+    """Backwards ReLu function (gradient)"""
+    return 1 if value > 0 else 0
+
+
+def tanh_forward(value):
+    """tanh function"""
+    return (math.exp(value) - math.exp(-value)) / (math.exp(value) + math.exp(-value))
+
+def tanh_backward(value):
+    """Backwards tanh function (gradient)"""
+    return 1 - math.tanh(value) ** 2
+
+
 # http://stackoverflow.com/a/11125298/2601448
 def interleave(list_a, list_b):
     """Interleaves two lists of the same length"""
