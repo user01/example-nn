@@ -120,10 +120,9 @@ class PerceptronNetwork():
                        output in zip(truths, layer_states[-1])]
 
         unit_errors = [None] * len(self._layers)
-        unit_errors_layer_final = self._layers[
-            -1].backward(layer_states[-1], error_terms)
+        unit_errors_layer_final, verbosity = self._layers[
+            -1].backward_verbose(layer_states[-1], error_terms)
         unit_errors[-1] = unit_errors_layer_final
-        verbosity = []
 
         for idx in backwards_idx:
             # use current error terms to update the current layer
@@ -166,7 +165,8 @@ class PerceptronNetwork():
             inputs)
 
         # Step 2: back pass - collect errors
-        unit_errors, notes_backward = self.backward_verbose(layer_states, outputs)
+        unit_errors, notes_backward = self.backward_verbose(
+            layer_states, outputs)
 
         # Step 3: update weights
         network_updated = self.update_weights(
