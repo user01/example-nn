@@ -311,7 +311,8 @@ if __name__ == "__main__":
     try_and_network()
     try_nor()
     try_xor()
-    # try_xor_verbose()
     try_multi()
-    # try_class_example_verbose()
     try_class_example()
+
+    try_xor_verbose()
+    try_class_example_verbose()
