@@ -106,8 +106,11 @@ class PerceptronNetwork():
                 layer_inputs, layer_error_weights, layer_error_unit_errors, layer_error.names())
             notes = notes + layer_back_notes
 
-        return unit_errors, notes + notes_layer_final
+        notes_all = ['Network Backpass (Unit Errors)'] + \
+            ['| {}'.format(line) for line in notes + notes_layer_final]
 
+        return unit_errors, notes_all
+        # return unit_errors, notes + notes_layer_final
 
     def update_weights(self, layer_states, unit_errors, learning_rate):
         """A new network with updated weights"""

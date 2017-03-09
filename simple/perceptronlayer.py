@@ -163,7 +163,8 @@ class PerceptronLayer():
             ] + weights_errors_values_1 + ["]"],
             [
                 "unit_error({})".format(name), "=",
-                "σ'_{}(out_{})".format(perceptron.activation(), name), "*",
+                "σ'_{}({})".format(perceptron.activation(),
+                                   float_fix(output_unit)), "*",
                 "["
             ] + weights_errors_values_2 + ["]"],
             [
@@ -192,9 +193,16 @@ class PerceptronLayer():
             ],
             [
                 "unit_error({})".format(name), "=",
-                "σ'_{}({})".format(perceptron.activation(), float_fix(output_unit)), "*",
+                "σ'_{}({})".format(perceptron.activation(),
+                                   float_fix(output_unit)), "*",
                 "[", float_fix(truth), "-",
                 float_fix(output_unit), "]"
+            ],
+            [
+                "unit_error({})".format(name), "=",
+                float_fix(details['activation_backwards']), '*',
+                '[', float_fix(details['weighted_error']), "]",
+                '=', float_fix(details['unit_error'])
             ]
         ]
 
