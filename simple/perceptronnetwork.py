@@ -1,7 +1,7 @@
 """PerceptronNetwork Code"""
 
 from .perceptronlayer import PerceptronLayer
-from .tools import flatten
+from .tools import flatten, transpose
 
 
 class PerceptronNetwork():
@@ -79,76 +79,35 @@ class PerceptronNetwork():
 
     def backward(self, layer_states, truths):
         """Perform backprop in network - gathers unit errors for each layer"""
-        # new_layers = [None] * len(self._layers)
-        # skip last layer - defies standard
-        backwards_idx = range(len(self._layers) - 2, -1, -1)
-        error_terms = [truth - output for truth,
-                       output in zip(truths, layer_states[-1])]
-
-        unit_errors = [None] * len(self._layers)
-        unit_errors_layer_final = self._layers[
-            -1].backward(layer_states[-1], error_terms)
-        unit_errors[-1] = unit_errors_layer_final
-
-        for idx in backwards_idx:
-            # use current error terms to update the current layer
-            layer_inputs = layer_states[idx + 1]
-            layer_back = self._layers[idx]
-            # layer associated with error_terms
-            layer_error = self._layers[idx + 1]
-            layer_error_unit_errors = unit_errors[idx + 1]
-
-            perceptron_count = len(layer_back.perceptrons())
-            weighted_errors = [None] * perceptron_count
-            for i in range(0, perceptron_count):
-                # for every node in the error layer, sum( (i+1)th weight * node_unit_error )
-                # is the weighted_error for the ith node in layer_back
-                weighted_errors[i] = sum([perceptron.weights()[i + 1] * unit_error for
-                                          perceptron, unit_error in zip(
-                                              layer_error.perceptrons(), layer_error_unit_errors)])
-
-            unit_errors[idx] = layer_back.backward(
-                layer_inputs, weighted_errors)
-
-        return unit_errors
+        return self.backward_verbose(layer_states, truths)[0]
 
     def backward_verbose(self, layer_states, truths):
-        """Perform backprop in network - gathers unit errors for each layer and notes"""
-        # skip last layer - defies standard
+        """Perform backprop in network - gathers unit errors for each layer, verbose"""
+        # special for last layer - defies standard
         backwards_idx = range(len(self._layers) - 2, -1, -1)
-        error_terms = [truth - output for truth,
-                       output in zip(truths, layer_states[-1])]
 
         unit_errors = [None] * len(self._layers)
-        unit_errors_layer_final, final_verbosity = self._layers[
-            -1].backward_verbose(layer_states[-1], error_terms)
+        unit_errors_layer_final, notes_layer_final = \
+            self._layers[-1].backward_last_verbose(layer_states[-1], truths)
         unit_errors[-1] = unit_errors_layer_final
-        verbosity = []
+        notes = []
 
         for idx in backwards_idx:
             # use current error terms to update the current layer
             layer_inputs = layer_states[idx + 1]
-            layer_back = self._layers[idx]
+            layer_back = self._layers[idx]  # target of backprop
             # layer associated with error_terms
-            layer_error = self._layers[idx + 1]
+            layer_error = self._layers[idx + 1]  # source of error
             layer_error_unit_errors = unit_errors[idx + 1]
 
-            perceptron_count = len(layer_back.perceptrons())
-            weighted_errors = [None] * perceptron_count
-            for i in range(0, perceptron_count):
-                # for every node in the error layer, sum( (i+1)th weight * node_unit_error )
-                # is the weighted_error for the ith node in layer_back
-                weighted_errors[i] = sum([perceptron.weights()[i + 1] * unit_error for
-                                          perceptron, unit_error in zip(
-                                              layer_error.perceptrons(), layer_error_unit_errors)])
+            layer_error_weights = transpose(
+                [perceptron.weights() for perceptron in layer_error.perceptrons()])
+            unit_errors[idx], layer_back_notes = layer_back.backward_verbose(
+                layer_inputs, layer_error_weights, layer_error_unit_errors, layer_error.names())
+            notes = notes + layer_back_notes
 
-            unit_errors[idx], notes = layer_back.backward_verbose(
-                layer_inputs, weighted_errors)
-            verbosity = verbosity + notes
+        return unit_errors, notes + notes_layer_final
 
-        notes = ['Network Backward Pass'] + \
-            ['| {}'.format(line) for line in verbosity + final_verbosity]
-        return unit_errors, notes
 
     def update_weights(self, layer_states, unit_errors, learning_rate):
         """A new network with updated weights"""

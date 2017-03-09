@@ -134,20 +134,42 @@ def interleave(list_a, list_b):
     """Interleaves two lists of the same length"""
     return [x for t in zip(list_a, list_b) for x in t]
 
-# http://stackoverflow.com/a/952952/2601448
+
+def intersperse(list_main, element):
+    """Intersperse an element between each element in the main list."""
+    list_element = [element] * len(list_main)
+    list_all = interleave(list_main, list_element)
+    return list_all[:-1]
+
+
 def flatten(lst):
     """Flatten a List<List<any>> into List<any>"""
+    # http://stackoverflow.com/a/952952/2601448
     return [item for sublist in lst for item in sublist]
 
+
+def float_fix(value):
+    """Returns a readable string of a float"""
+    return str(round(value, 3))
+
+
+def transpose(lst):
+    """Transpose a List<List<any>> structure"""
+    return zip(*lst)
 
 def align_equations(equations):
     """Convert n x m lists into aligned strings"""
     nth_size = [None] * len(equations[0])
     for idx in range(0, len(equations[0])):
         nth_size[idx] = max([len(equation[idx]) for equation in equations])
+    max_equation_size = 0
+    for equation in equations:
+        max_equation_size = max(len(equation), max_equation_size)
 
     new_equations = [None] * len(equations)
     for idx in range(0, len(equations)):
+        equations[idx] = equations[idx] + \
+            [''] * (max_equation_size - len(equations[idx]))
         new_equations[idx] = ' '.join([('{0:>' + str(size) + '}').format(term)
                                        for term, size in zip(equations[idx], nth_size)])
 

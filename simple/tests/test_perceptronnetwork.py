@@ -43,7 +43,7 @@ class TestPerceptronNetwork(unittest.TestCase):
         results_actual = network.forward([1, 2, 1, 2])[0]
         self.assertIsInstance(results_actual, list)
         self.assertEqual(2, len(results_actual))
-        results_expected = [0.843, 0.843]
+        results_expected = [0.3743, 0.5912]
 
         for expected, actual in zip(results_expected, results_actual):
             self.assertAlmostEqual(actual, expected, 2)

@@ -1,6 +1,9 @@
 
 """Perceptrons"""
 
+import random
+import math
+
 from .tools import linear_forward, sigmoid_forward, relu_forward, tanh_forward
 from .tools import linear_backward, sigmoid_backward, relu_backward, tanh_backward
 from .tools import linear_forward_verbose, linear_backward_verbose
@@ -24,6 +27,16 @@ class Perceptron():
             return value
         return 'sigmoid'
 
+    @staticmethod
+    def generate_weights(input_size, seed=None):
+        """Generate weights based on input size"""
+        seed = 451 if not isinstance(seed, int) else seed
+        random.seed(seed)
+        bound = 1 / math.sqrt(input_size + 1)
+        weights = [random.uniform(-bound, bound)
+                   for _ in range(0, input_size + 1)]
+        return weights
+
     def weights(self):
         """Returns a copy of the current weights"""
         return self._weights[:]
@@ -35,6 +48,10 @@ class Perceptron():
     def name(self):
         """Returns the perceptron name."""
         return self._name
+
+    def activation(self):
+        """Name of activation function"""
+        return self._activation
 
     def forward(self, inputs):
         """Run an input through the Perceptron. Returns the output value"""
@@ -71,19 +88,20 @@ class Perceptron():
         return linear_prints + sigmoid_prints
 
     def backward(self, output_unit, weighted_error):
-        """Returns updated weights"""
-        unit_error = self.activation_backward(output_unit) * weighted_error
-        return unit_error
+        """Returns unit error"""
+        return self.backward_details(output_unit, weighted_error)['unit_error']
 
-    def backward_verbose(self, output_unit, weighted_error):
-        """Returns updated weights and notes"""
+    def backward_details(self, output_unit, weighted_error):
+        """Returns unit error and notes"""
+        activation_backwards = self.activation_backward(output_unit)
         unit_error = self.activation_backward(output_unit) * weighted_error
-        notes = [
-            " unit_error({0}) = σ'_{3}({1}) * {4} = {2}".format(
-                self._name, round(output_unit, 3), round(unit_error, 3),
-                self._activation, round(weighted_error, 3))
-        ]
-        return unit_error, notes
+        return {
+            'unit_error': unit_error,
+            'activation': self._activation,
+            'activation_backwards': activation_backwards,
+            'output_unit': output_unit,
+            'weighted_error': weighted_error
+        }
 
     def update_weights(self, inputs, unit_error, learning_rate):
         """Returns updated Perceptron"""
