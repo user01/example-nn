@@ -103,7 +103,6 @@ class PerceptronNetwork():
 
             layer_error_weights = transpose(
                 [perceptron.weights()[1:] for perceptron in layer_error.perceptrons()])
-            print(list(layer_error_weights))
 
             unit_errors[idx], layer_back_notes = layer_back.backward_verbose(
                 layer_inputs, layer_error_weights, layer_error_unit_errors, layer_error.names())
