@@ -157,19 +157,21 @@ def transpose(lst):
     """Transpose a List<List<any>> structure"""
     return [list(elm) for elm in zip(*lst)]
 
+
 def align_equations(equations):
     """Convert n x m lists into aligned strings"""
-    nth_size = [None] * len(equations[0])
-    for idx in range(0, len(equations[0])):
-        nth_size[idx] = max([len(equation[idx]) for equation in equations])
     max_equation_size = 0
     for equation in equations:
         max_equation_size = max(len(equation), max_equation_size)
+    equations = [equation + [''] *
+                 (max_equation_size - len(equation)) for equation in equations]
+
+    nth_size = [None] * len(equations[0])
+    for idx in range(0, len(equations[0])):
+        nth_size[idx] = max([len(equation[idx]) for equation in equations])
 
     new_equations = [None] * len(equations)
     for idx in range(0, len(equations)):
-        equations[idx] = equations[idx] + \
-            [''] * (max_equation_size - len(equations[idx]))
         new_equations[idx] = ' '.join([('{0:>' + str(size) + '}').format(term)
                                        for term, size in zip(equations[idx], nth_size)])
 

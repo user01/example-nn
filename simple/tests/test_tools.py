@@ -4,6 +4,7 @@ import unittest
 import math
 from simple.tools import linear_forward, sigmoid_forward
 from simple.tools import linear_forward_verbose
+from simple.tools import align_equations
 
 
 class TestForwardPass(unittest.TestCase):
@@ -52,6 +53,23 @@ class TestSigmoid(unittest.TestCase):
         for i in range(-100, 100):
             self.assertAlmostEqual(
                 1 / (1 + math.exp(-i / 10)), sigmoid_forward(i / 10))
+
+
+class TestAlignEquations(unittest.TestCase):
+    """AlignEquations tests"""
+
+    def test_basic(self):
+        """Basic AlignEquations"""
+        equations = [
+            ['1', 'two', 'three'],
+            ['four', 'two', '=']
+        ]
+        expected = [
+            '   1 two three',
+            'four two     ='
+        ]
+        actual = align_equations(equations)
+        self.assertListEqual(expected, actual)
 
 
 if __name__ == '__main__':
