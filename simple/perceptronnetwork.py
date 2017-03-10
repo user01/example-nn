@@ -34,7 +34,8 @@ class PerceptronNetwork():
                                                 sizes[0],
                                                 str(len(sizes)),
                                                 ['?'] * input_size,
-                                                activation))
+                                                activation,
+                                                len(sizes)))
         return PerceptronNetwork(layers)
 
     def layers(self):
