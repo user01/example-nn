@@ -105,6 +105,7 @@ class PerceptronLayer():
                          # List<error> errors associated with the next layer
                          # (each output)
                          output_errors,
+                         # List<string> names of output targets
                          output_names):
         """Find error for each Perceptron"""
 

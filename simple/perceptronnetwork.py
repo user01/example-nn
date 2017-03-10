@@ -112,7 +112,6 @@ class PerceptronNetwork():
             ['| {}'.format(line) for line in notes + notes_layer_final]
 
         return unit_errors, notes_all
-        # return unit_errors, notes + notes_layer_final
 
     def update_weights(self, layer_states, unit_errors, learning_rate):
         """A new network with updated weights"""
@@ -158,21 +157,19 @@ class PerceptronNetwork():
         mses = []
 
         for epoch in range(0, epochs):
-            # print('Starting Epoch {}'.format(epoch))
             standard_error = []
             for values, results in zip(values_input, values_outputs):
-                # print('For {0}, truth {1} ...'.format(value, result))
-
                 # Step 1: forward pass - predict
                 estimated_results, layer_states = network_current.forward(
                     values)
 
-                # Step 2: back pass - collect errors
+                # Step 1a: note success rate
                 weighted_errors = [result - estimated_result for result,
                                    estimated_result in zip(results, estimated_results)]
                 weighted_error = sum(weighted_errors) / len(weighted_errors)
                 standard_error.append(weighted_error ** 2)
 
+                # Step 2: back pass - collect errors
                 unit_errors = network_current.backward(layer_states, results)
 
                 # Step 3: update weights
@@ -186,13 +183,5 @@ class PerceptronNetwork():
             if epoch % epoch_reporting == 0:
                 mse = sum(standard_error) / len(standard_error)
                 mses.append((epoch, mse))
-                # print('For epoch {0}, MSE of {1}'.format(epoch, mse))
 
         return network_current, mse, mse_first, mses
-        # print('Final MSE {0}'.format(sum(standard_error) / len(standard_error)))
-        # print(' {0:>6} | {1:>5} {2:<10}'.format('Value', 'Truth', 'Prediction'))
-        # for value, result in zip(values_input, values_outputs):
-        #     estimated_value = perceptron.forward(value)
-        #     # print(value, result, estimated_value)
-        #     print(' {0:>6} | {1:>5} {2:<10}'.format(
-        #         str(value), result, round(estimated_value, 3)))
