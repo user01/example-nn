@@ -136,7 +136,7 @@ class PerceptronLayer():
         # error in zip(output_weights, output_errors)]
         weights_errors_text = flatten(
             intersperse([
-                ['w_{}.{}'.format(name, output_name), '*', '𝛿_{}'.format(output_name)] for
+                ['w_{}.{}'.format(output_name, name), '*', '𝛿_{}'.format(output_name)] for
                 output_name in output_names], ['+']))
 
         weights_errors_values_1 = flatten(
