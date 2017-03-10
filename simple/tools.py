@@ -155,7 +155,7 @@ def float_fix(value):
 
 def transpose(lst):
     """Transpose a List<List<any>> structure"""
-    return zip(*lst)
+    return [list(elm) for elm in zip(*lst)]
 
 def align_equations(equations):
     """Convert n x m lists into aligned strings"""
